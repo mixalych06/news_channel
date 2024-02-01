@@ -1,14 +1,22 @@
 import locale
-
-import pprint
+import logging
 from datetime import datetime, timedelta
-
-import bs4.element
-import requests
+from zoneinfo import ZoneInfo
+import asyncio
 
 from bs4 import BeautifulSoup
+import bs4.element
+import requests
+from fake_useragent import UserAgent
+
+from create_bot import bot, ID_CHANEL
+from data import orm
+from data.models import News_AmurLifeNews, News_ASN24, News_AmurInfo
 
 locale.setlocale(locale.LC_ALL, "")
+
+
+UA = UserAgent()
 
 def get_requests_text(url: str, params: dict = None) -> str:
      '''
@@ -33,6 +41,9 @@ def get_all_link(html_text: str, tag: str='a', attr: dict=None) -> bs4.element.R
      news = soup.find_all(tag, attr)
      return news
 
+print(datetime.now(tz=ZoneInfo('localtime')))
+date_news = datetime.now(tz=ZoneInfo('Asia/Yakutsk')).strftime('%m-%d-%y')
+print(date_news)
 
 def converts_str_to_datetime(str_date: str):
      '''
@@ -41,22 +52,20 @@ def converts_str_to_datetime(str_date: str):
      :return: datetime
      '''
      day = str_date.split()
-     if 'сегодня' in day[0]:
-          date_news = datetime.today().strftime('%m-%d-%y')
+     if 'сегодня' in day[0].lower():
+          date_news = datetime.now(tz=ZoneInfo('Asia/Yakutsk')).strftime('%m-%d-%y')
           date_news =f'{date_news} {day[1]}'
           return datetime.strptime(date_news, '%m-%d-%y %H:%M')
 
-     elif 'вчера' in day[0]:
-          date_news = (datetime.today() - timedelta(days=1)).strftime('%m-%d-%y')
+     elif 'вчера' in day[0].lower():
+          date_news = (datetime.now(tz=ZoneInfo('Asia/Yakutsk')) - timedelta(days=1)).strftime('%m-%d-%y')
           date_news = f'{date_news} {day[1]}'
           return datetime.strptime(date_news, '%m-%d-%y %H:%M')
 
      else:
           date_news = str_date.split()
-          print(date_news)
           if len(date_news) > 3:
                date_news = ' '.join(date_news)
-               print(date_news)
                return datetime.strptime(date_news, '%d %B %Y, %H:%M')
           date_news.insert(2, str(datetime.now().year))
           date_news = ' '.join(date_news)
@@ -66,25 +75,95 @@ def converts_str_to_datetime(str_date: str):
 def pars_amur_life():
      url = 'https://www.amur.life/news'
      attr = {"class": "news__content news__content_bordered news__content_fixed"}
-     req_text = get_requests_text(url=url)
+     req_text = get_requests_text(url=url, params=UA.random)
      news = get_all_link(req_text, attr=attr, tag="div")
      dict_news = {}
      for i in news:
           link_news = i.find("a", {"class": "news__title"})
           date_news = converts_str_to_datetime(i.find("div", {"class": "mr-auto"}).text)
-          dict_news[date_news] = (link_news.get_text(), link_news.get("href"))
+          dict_news[link_news.get_text()] = (date_news, link_news.get("href"))
+     return dict_news
+
+def pars_asn24():
+     url = 'https://asn24.ru/news/'
+     req_text = get_requests_text(url=url, params=UA.random)
+     attr = {"class": "blog-card"}
+     news = get_all_link(req_text, attr=attr, tag="div")
+     dict_news = {}
+     for i in news:
+          link_news = i.find("a", {"class": "link-as-card"})
+          title = i.find("div", {"class": "blog-card__title"})
+          date_news = i.find("span", {"class": "blog-card__info-value"})
+          date_news = converts_str_to_datetime(date_news.text)
+          dict_news[title.get_text()] = (date_news, 'https://asn24.ru' + link_news.get("href"))
+     return dict_news
+
+def pars_amurinfo():
+     url = 'https://amur.info/category/vse-novosti/'
+     req_text = get_requests_text(url=url, params=UA.random)
+     attr = {"class": "long-news-block with-text"}
+     news = get_all_link(req_text, attr=attr, tag="div")
+     dict_news = {}
+     for i in news:
+          link_news = i.find("a", {"class": "h2"})
+          title = i.find("a", {"class": "h2"})
+          date_news = i.find("a", {"class": "news-date"})
+          date_news = converts_str_to_datetime(date_news.text)
+          dict_news[title.get_text()] = (date_news, link_news.get("href"))
      return dict_news
 
 
+async def check_add_news(news_dict, model):
+     latest_news = await orm.get_max_date(model)
+     await orm.add_news(news_dict,  latest_news, model)
 
+async def start_checks_for_news_amur_life(wait_for):
+     while True:
+          await asyncio.sleep(wait_for)
+          news_amur = pars_amur_life()
+          await check_add_news(news_amur, News_AmurLifeNews)
 
-news = pars_amur_life()
-print(news)
-for d, n in sorted(news.items()):
-     print(d)
-     print(n)
+async def start_checks_for_news_asn24(wait_for):
+     while True:
+          await asyncio.sleep(wait_for)
+          news_asn24 = pars_asn24()
+          await check_add_news(news_asn24, News_ASN24)
 
+async def start_checks_for_news_amurinfo(wait_for):
+     while True:
+          await asyncio.sleep(wait_for)
+          news_amurinfo = pars_amurinfo()
+          await check_add_news(news_amurinfo, News_AmurInfo)
 
+async def send_news_asn24():
+     news = await orm.get_min_date(News_ASN24)
+     if news:
+          await bot.send_message(chat_id=ID_CHANEL,
+                            text=f'{news.date}\n'
+                                 f'{news.link}')
+          await orm.update_completed(news.id, News_ASN24)
 
+async def send_news_amurlife():
+     news2 = await orm.get_min_date(News_AmurLifeNews)
+     if news2:
+          await bot.send_message(chat_id=ID_CHANEL,
+                                      text=f'{news2.date}\n'
+                                           f'{news2.link}')
+          await orm.update_completed(news2.id, News_AmurLifeNews)
 
-# print(soup.a["news__title"])
+async def send_news_amurinfo():
+     news3 = await orm.get_min_date(News_AmurInfo)
+     if news3:
+          await bot.send_message(chat_id=ID_CHANEL,
+                                 text=f'{news3.date}\n'
+                                      f'{news3.link}')
+          await orm.update_completed(news3.id, News_AmurInfo)
+
+async def sends_news(wait_for):
+     while True:
+          await asyncio.sleep(wait_for)
+          await send_news_amurlife()
+          await send_news_amurinfo()
+          await send_news_asn24()
+
+# asyncio.run(checks_for_news())

@@ -22,7 +22,6 @@ async def all_news(msg: types.Message):
     '''
     news = pars_amur_life()
     for d, n in sorted(news.items()):
-        print(d)
 
         await bot.send_message(chat_id=ID_CHANEL,
                                text=f'{d}\n'
