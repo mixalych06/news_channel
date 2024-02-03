@@ -1,5 +1,5 @@
 import locale
-import logging
+
 from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 import asyncio
@@ -41,9 +41,6 @@ def get_all_link(html_text: str, tag: str='a', attr: dict=None) -> bs4.element.R
      news = soup.find_all(tag, attr)
      return news
 
-print(datetime.now(tz=ZoneInfo('localtime')))
-date_news = datetime.now(tz=ZoneInfo('Asia/Yakutsk')).strftime('%m-%d-%y')
-print(date_news)
 
 def converts_str_to_datetime(str_date: str):
      '''
@@ -67,7 +64,7 @@ def converts_str_to_datetime(str_date: str):
           if len(date_news) > 3:
                date_news = ' '.join(date_news)
                return datetime.strptime(date_news, '%d %B %Y, %H:%M')
-          date_news.insert(2, str(datetime.now().year))
+          date_news.insert(2, str(datetime.now(tz=ZoneInfo('Asia/Yakutsk')).year))
           date_news = ' '.join(date_news)
           return datetime.strptime(date_news, '%d %B, %Y %H:%M')
 
