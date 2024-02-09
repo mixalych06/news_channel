@@ -3,7 +3,8 @@ from sqlalchemy import select, func, update, insert
 
 from data.models import Base
 from create_bot import config
-
+from datetime import datetime, timedelta
+from zoneinfo import ZoneInfo
 
 dbname = config['dbname']
 host = config['host']
@@ -19,29 +20,26 @@ async def create_table():
         await conn.run_sync(Base.metadata.create_all)
 
 
-async def get_async_session()-> AsyncSession:
+async def get_async_session() -> AsyncSession:
     async with async_session_maker() as session:
         return session
 
 
-async def add_news(news: dict, latest_news, model):
-    session: AsyncSession= await get_async_session()
-    for d, l in news.items():
-        stmt1 = select(model).where(model.title == d)
-        result1 = await session.execute(stmt1)
-        result1 = result1.first()
-        if result1 is None:
-            stmt = insert(model).values(date=l[0], title=d, link=l[1])
-            await session.execute(stmt)
+async def add_news(news: list, latest_news, model):
+    session: AsyncSession = await get_async_session()
+    for d, l in news[::-1]:
+        stmt = insert(model).values(date=datetime.now(), title=d, link=l)
+        await session.execute(stmt)
         await session.commit()
+
 
 async def get_max_date(model):
     session = await get_async_session()
-    stmt = select(model.date, model.completed).where(model.date==select(func.max(model.date)))
+    stmt = select(model.title, model.link).where(model.date == select(func.max(model.date)))
     result = await session.execute(stmt)
     result = result.first()
     await session.commit()
-    return  result
+    return result
 
 
 async def get_min_date(model):
@@ -50,7 +48,7 @@ async def get_min_date(model):
     result = await session.execute(stmt)
     result = result.scalar()
     await session.commit()
-    return  result
+    return result
 
 
 async def update_completed(id_news, model):
@@ -58,4 +56,3 @@ async def update_completed(id_news, model):
     stmt = update(model).where(model.id == id_news).values(completed=True)
     await session.execute(stmt)
     await session.commit()
-
