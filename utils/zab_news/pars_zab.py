@@ -80,10 +80,21 @@ def pars_zabnews():
     #     link_news = f'https://www.chita.ru{link_news}'
     #     list_news.append((i.get_text(), link_news))
     # return list_news
+def pars_zab():
+    url = 'https://zab.ru/rss/'
+    req_text = get_requests_text(url=url, params=UA.random)
+    soup = BeautifulSoup(req_text, 'xml')
+    text = soup.find_all('item')
+    list_news = []
+    for i in text:
+        link_news = i.find('link')
+        text_news = i.find('title')
+        list_news.append((text_news.text, link_news.text))
+    return list_news[:21]
 
 
 
-s = pars_zabnews()
+s = pars_zab()
 
 # a = pars_chita()
 for i in s:
