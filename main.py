@@ -9,10 +9,10 @@ from utils.parsers import sends_news
 
 async def create_task():
 
-    task1 = asyncio.create_task(start_checks_for_news_amur_life(35))
-    task2 = asyncio.create_task(start_checks_for_news_asn24(35))
-    task3 = asyncio.create_task(start_checks_for_news_amurinfo(35))
-    task4 = asyncio.create_task(sends_news(10))
+    task1 = asyncio.create_task(start_checks_for_news_amur_life(70))
+    task2 = asyncio.create_task(start_checks_for_news_asn24(80))
+    task3 = asyncio.create_task(start_checks_for_news_amurinfo(90))
+    task4 = asyncio.create_task(sends_news(60))
 
 async def main() -> None:
 

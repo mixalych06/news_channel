@@ -14,6 +14,8 @@ beautifulsoup4 = "^4.12.2"
 python-dotenv = "^1.0.0"
 asyncpg = "^0.29.0"
 fake-useragent = "^1.4.0"
+xlml = "^0.1.2"
+lxml = "^5.1.0"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.4.3"

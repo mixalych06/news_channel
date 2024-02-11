@@ -54,3 +54,32 @@ def pars_chita():
         link_news = f'https://www.chita.ru{link_news}'
         list_news.append((i.get_text(), link_news))
     return list_news
+
+def pars_zabnews():
+    url = 'https://zabnews.ru/YandexRss.rss'
+    req_text = get_requests_text(url=url, params=UA.random)
+    # print(req_text)
+    soup = BeautifulSoup(req_text, 'xml')
+    print(soup)
+    news = soup.get('title')
+    return(news)
+
+    # attr = {"class": "h9Jmx"}
+    #
+    # news = get_all_link(req_text, attr=attr, tag="h2")
+    # list_news = []
+    # for i in news:
+    #     link_news = i.find("a").get("href")
+    #     # print(link_news)
+    #     # print(i.get_text())
+    #     link_news = f'https://www.chita.ru{link_news}'
+    #     list_news.append((i.get_text(), link_news))
+    # return list_news
+
+
+
+s = pars_zabnews()
+print(s)
+# a = pars_chita()
+# for i in s:
+#     print(i.get())
