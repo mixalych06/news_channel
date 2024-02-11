@@ -74,26 +74,26 @@ def pars_amur_life():
      attr = {"class": "news__content news__content_bordered news__content_fixed"}
      req_text = get_requests_text(url=url, params=UA.random)
      news = get_all_link(req_text, attr=attr, tag="div")
-     dict_news = []
+     list_news = []
      for i in news:
           link_news = i.find("a", {"class": "news__title"})
           # date_news = converts_str_to_datetime(i.find("div", {"class": "mr-auto"}).text)
-          dict_news.append((link_news.get_text(), link_news.get("href")))
-     return dict_news
+          list_news.append((link_news.get_text(), link_news.get("href")))
+     return list_news
 # pars_amur_life()
 def pars_asn24():
      url = 'https://asn24.ru/news/'
      req_text = get_requests_text(url=url, params=UA.random)
      attr = {"class": "blog-card"}
      news = get_all_link(req_text, attr=attr, tag="div")
-     dict_news = []
+     list_news = []
      for i in news[:20]:
           link_news = i.find("a", {"class": "link-as-card"})
           title = i.find("div", {"class": "blog-card__title"})
           # date_news = i.find("span", {"class": "blog-card__info-value"})
           # date_news = converts_str_to_datetime(date_news.text)
-          dict_news.append((title.get_text(), 'https://asn24.ru' + link_news.get("href")))
-     return dict_news
+          list_news.append((title.get_text(), 'https://asn24.ru' + link_news.get("href")))
+     return list_news
 # pars_asn24()
 
 def pars_amurinfo():
@@ -101,14 +101,14 @@ def pars_amurinfo():
      req_text = get_requests_text(url=url, params=UA.random)
      attr = {"class": "long-news-block with-text"}
      news = get_all_link(req_text, attr=attr, tag="div")
-     dict_news = []
+     list_news = []
      for i in news:
           link_news = i.find("a", {"class": "h2"})
           title = i.find("a", {"class": "h2"})
           # date_news = i.find("a", {"class": "news-date"})
           # date_news = converts_str_to_datetime(date_news.text)
-          dict_news.append((title.get_text(), link_news.get("href")))
-     return dict_news
+          list_news.append((title.get_text(), link_news.get("href")))
+     return list_news
 # pars_amurinfo()
 
 async def check_add_news(news_dict, model):
