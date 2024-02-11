@@ -32,11 +32,8 @@ async def add_news(news: list, latest_news, model):
         result1 = await session.execute(stmt)
         result1 = result1.first()
         if result1 is None:
-            print('добавляю')
             stmt = insert(model).values(date=datetime.now(), title=d, link=l)
             await session.execute(stmt)
-        else:
-            print('нечего')
         await session.commit()
 
 
