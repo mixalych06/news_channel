@@ -28,7 +28,7 @@ async def get_async_session() -> AsyncSession:
 async def add_news(news: list, latest_news, model):
     session: AsyncSession = await get_async_session()
     for d, l in news[::-1]:
-        stmt = select(model).where(model.title==d)
+        stmt = select(model).where(model.title == d)
         result1 = await session.execute(stmt)
         result1 = result1.first()
         if result1 is None:
