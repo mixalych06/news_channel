@@ -1,5 +1,4 @@
 
-
 # from datetime import datetime, timedelta
 # from zoneinfo import ZoneInfo
 import asyncio
@@ -11,34 +10,7 @@ from fake_useragent import UserAgent
 
 # from create_bot import bot, ID_CHANEL
 # from data import orm
-# from utils.parsers import UA
-
-UA = UserAgent()
-
-
-def get_requests_text(url: str, params: dict = None) -> str:
-     '''
-     Делает GET запрос по переданому URL
-     :param url: URL запрашиваемой страницы
-     :param params: параметры GET запроса (пример {'page': 1})
-     :return: Возвращает HTML страницы в формате str
-     '''
-     reqs = requests.get(url, params=params)
-     return reqs.text
-
-
-def get_all_link(html_text: str, tag: str='a', attr: dict=None) -> bs4.element.ResultSet:
-     '''
-     Преобразует HTML в формате str в объект BS4
-     :param html_text: HTML в формате str
-     :param tag: tag для поиска
-     :param attr: атрибут тега для поиска (пример {"class": "news__title"})
-     :return: найденые элементы BS4
-     '''
-     soup = BeautifulSoup(html_text, 'html.parser')
-     news = soup.find_all(tag, attr)
-     return news
-
+from utils.parsers import UA, get_requests_text, get_all_link
 
 
 def pars_chita():
@@ -58,10 +30,9 @@ def pars_chita():
 def pars_zabnews():
     url = 'https://zabnews.ru/YandexRss.rss'
     req_text = get_requests_text(url=url, params=UA.random)
-    soup = BeautifulSoup(req_text, 'xml')
-    text = soup.find_all('item')
+    news = get_all_link(req_text, tag='item', features='xml')
     list_news = []
-    for i in text:
+    for i in news:
         link_news = i.find('link')
         text_news = i.find('title')
         list_news.append((text_news.text, link_news.text))
@@ -83,19 +54,35 @@ def pars_zabnews():
 def pars_zab():
     url = 'https://zab.ru/rss/'
     req_text = get_requests_text(url=url, params=UA.random)
-    soup = BeautifulSoup(req_text, 'xml')
-    text = soup.find_all('item')
+    news = get_all_link(req_text, tag='item', features='xml')
+    # soup = BeautifulSoup(req_text, 'xml')
+    # text = soup.find_all('item')
     list_news = []
-    for i in text:
+    for i in news:
         link_news = i.find('link')
         text_news = i.find('title')
         list_news.append((text_news.text, link_news.text))
     return list_news[:21]
 
-
-
-s = pars_zab()
-
-# a = pars_chita()
-for i in s:
-    print(i)
+def chita_pars():
+    print('pars_chita')
+    c=pars_chita()
+    for i in c:
+        print(i)
+    print('pars_chita')
+    b = pars_chita()
+    for i in b:
+        print(i)
+    print('pars_chita')
+    n = pars_chita()
+    for i in n:
+        print(i)
+# async def sends_news(wait_for):
+#     while True:
+#         await asyncio.sleep(wait_for)
+#         # await send_news_amurlife()
+#         # await send_news_amurinfo()
+#         # await send_news_asn24()
+#         task2 = asyncio.create_task(send_news_amurlife())
+#         task3 = asyncio.create_task(send_news_amurinfo())
+#         task4 = asyncio.create_task(send_news_asn24())

@@ -7,6 +7,7 @@ from data.orm import create_table
 from utils.parsers import start_checks_for_news_amur_life, start_checks_for_news_asn24, start_checks_for_news_amurinfo
 from utils.parsers import sends_news
 
+
 async def create_task():
 
     task1 = asyncio.create_task(start_checks_for_news_amur_life(70))

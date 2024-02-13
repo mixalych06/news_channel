@@ -29,15 +29,16 @@ def get_requests_text(url: str, params: dict = None) -> str:
     return reqs.text
 
 
-def get_all_link(html_text: str, tag: str = 'a', attr: dict = None) -> bs4.element.ResultSet:
+def get_all_link(html_text: str, tag: str ='a', attr: dict = None, features='html.parser') -> bs4.element.ResultSet:
     '''
      Преобразует HTML в формате str в объект BS4
      :param html_text: HTML в формате str
      :param tag: tag для поиска
      :param attr: атрибут тега для поиска (пример {"class": "news__title"})
+     :param features:
      :return: найденые элементы BS4
      '''
-    soup = BeautifulSoup(html_text, 'html.parser')
+    soup = BeautifulSoup(html_text, features)
     news = soup.find_all(tag, attr)
     return news
 
