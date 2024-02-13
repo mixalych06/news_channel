@@ -3,7 +3,7 @@ from datetime import datetime
 from sqlalchemy import Boolean
 from sqlalchemy.orm import Mapped, mapped_column
 
-from data.models import Base
+from .base import Base
 
 
 class News_ASN24(Base):
@@ -16,7 +16,7 @@ class News_ASN24(Base):
     completed: Mapped[bool] = mapped_column(Boolean(), default=False)
 
 
-class News_AmurLifeNews(Base):
+class News_AmurLife(Base):
     __tablename__ = 'news_amurlife'
 
     id: Mapped[int] = mapped_column(primary_key=True)
@@ -34,8 +34,6 @@ class News_AmurInfo(Base):
     title: Mapped[str] = mapped_column()
     link: Mapped[str] = mapped_column()
     completed: Mapped[bool] = mapped_column(Boolean(), default=False)
-
-
 
     # def __str__(self):
     #     return f'{self.id, self.title, self.description, self.completed}'

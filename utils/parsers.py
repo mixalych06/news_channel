@@ -11,7 +11,7 @@ from fake_useragent import UserAgent
 
 from create_bot import bot, ID_CHANEL
 from data import orm
-from data.models_amur import News_ASN24, News_AmurLifeNews, News_AmurInfo
+from data.models_amur import News_ASN24, News_AmurLife, News_AmurInfo
 
 locale.setlocale(locale.LC_ALL, "")
 
@@ -130,7 +130,7 @@ async def start_checks_for_news_amur_life(wait_for):
     while True:
         await asyncio.sleep(wait_for)
         news_amur = pars_amur_life()
-        await check_add_news(news_amur, News_AmurLifeNews)
+        await check_add_news(news_amur, News_AmurLife)
 
 
 async def start_checks_for_news_asn24(wait_for):
@@ -156,9 +156,9 @@ async def send_news_asn24():
 
 
 async def send_news_amurlife():
-    news2 = await orm.get_min_date(News_AmurLifeNews)
+    news2 = await orm.get_min_date(News_AmurLife)
     if news2:
-        await orm.update_completed(news2.id, News_AmurLifeNews)
+        await orm.update_completed(news2.id, News_AmurLife)
         await bot.send_message(chat_id=ID_CHANEL,
                                text=f'{news2.link}')
 

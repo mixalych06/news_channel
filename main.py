@@ -16,10 +16,11 @@ async def create_task():
     task4 = asyncio.create_task(sends_news(60))
 
 async def main() -> None:
+    await create_table()
 
     dp.include_router(h_admin.router)
     await bot.delete_webhook(drop_pending_updates=True)
-    await create_table()
+
     await create_task()
     await dp.start_polling(bot)
 

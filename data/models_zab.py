@@ -3,7 +3,7 @@ from datetime import datetime
 from sqlalchemy import Boolean
 from sqlalchemy.orm import Mapped, mapped_column
 
-from data.models import Base
+from .base import Base
 
 
 class News_Chita(Base):
