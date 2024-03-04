@@ -126,59 +126,27 @@ async def check_add_news(news_dict, model):
         await orm.add_news(news_dict, latest_news, model)
 
 
-async def start_checks_for_news_amur_life(wait_for):
+async def start_checks_for_news_amur(pars, model):
+    news = pars()
+    await check_add_news(news, model)
+
+async def check_news_amur(wait_for):
     while True:
         await asyncio.sleep(wait_for)
-        news_amur = pars_amur_life()
-        await check_add_news(news_amur, News_AmurLife)
+        task1 = asyncio.create_task(start_checks_for_news_amur(pars_amurinfo, News_AmurInfo))
+        task2 = asyncio.create_task(start_checks_for_news_amur(pars_asn24, News_ASN24))
+        task3 = asyncio.create_task(start_checks_for_news_amur(pars_amur_life, News_AmurLife))
 
-
-async def start_checks_for_news_asn24(wait_for):
-    while True:
-        await asyncio.sleep(wait_for)
-        news_asn24 = pars_asn24()
-        await check_add_news(news_asn24, News_ASN24)
-
-
-async def start_checks_for_news_amurinfo(wait_for):
-    while True:
-        await asyncio.sleep(wait_for)
-        news_amurinfo = pars_amurinfo()
-        await check_add_news(news_amurinfo, News_AmurInfo)
-
-
-async def send_news_asn24():
-    news = await orm.get_min_date(News_ASN24)
+async def send_news_amur(model):
+    news = await orm.get_min_date(model)
     if news:
-        await orm.update_completed(news.id, News_ASN24)
+        await orm.update_completed(news.id, model)
         await bot.send_message(chat_id=ID_CHANEL,
                                text=f'{news.link}')
 
-
-async def send_news_amurlife():
-    news2 = await orm.get_min_date(News_AmurLife)
-    if news2:
-        await orm.update_completed(news2.id, News_AmurLife)
-        await bot.send_message(chat_id=ID_CHANEL,
-                               text=f'{news2.link}')
-
-
-async def send_news_amurinfo():
-    news3 = await orm.get_min_date(News_AmurInfo)
-    if news3:
-        await orm.update_completed(news3.id, News_AmurInfo)
-        await bot.send_message(chat_id=ID_CHANEL,
-                               text=f'{news3.link}')
-
-
-async def sends_news(wait_for):
+async def sends_news_amur(wait_for):
     while True:
         await asyncio.sleep(wait_for)
-        # await send_news_amurlife()
-        # await send_news_amurinfo()
-        # await send_news_asn24()
-        task2 = asyncio.create_task(send_news_amurlife())
-        task3 = asyncio.create_task(send_news_amurinfo())
-        task4 = asyncio.create_task(send_news_asn24())
-
-# asyncio.run(checks_for_news())
+        task2 = asyncio.create_task(send_news_amur(News_AmurLife))
+        task3 = asyncio.create_task(send_news_amur(News_AmurInfo))
+        task4 = asyncio.create_task(send_news_amur(News_ASN24))
