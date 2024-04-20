@@ -77,7 +77,6 @@ def pars_amur_life():
     list_news = []
     for i in news:
         link_news = i.find("a", {"class": "news__title"})
-        # date_news = converts_str_to_datetime(i.find("div", {"class": "mr-auto"}).text)
         list_news.append((link_news.get_text(), link_news.get("href")))
     return list_news
 
@@ -92,8 +91,6 @@ def pars_asn24():
     for i in news[:20]:
         link_news = i.find("a", {"class": "link-as-card"})
         title = i.find("div", {"class": "blog-card__title"})
-        # date_news = i.find("span", {"class": "blog-card__info-value"})
-        # date_news = converts_str_to_datetime(date_news.text)
         list_news.append((title.get_text(), 'https://asn24.ru' + link_news.get("href")))
     return list_news
 
@@ -109,8 +106,6 @@ def pars_amurinfo():
     for i in news:
         link_news = i.find("a", {"class": "h2"})
         title = i.find("a", {"class": "h2"})
-        # date_news = i.find("a", {"class": "news-date"})
-        # date_news = converts_str_to_datetime(date_news.text)
         list_news.append((title.get_text(), link_news.get("href")))
     return list_news
 
@@ -139,19 +134,11 @@ async def start_checks_for_news_amur3(pars, model):
 
 async def check_news_amur(wait_for):
     while True:
-        print('check_news_amur start')
-
         await asyncio.sleep(wait_for)
+
         await start_checks_for_news_amur(pars_amurinfo, News_AmurInfo)
         await start_checks_for_news_amur2(pars_asn24, News_ASN24)
         await start_checks_for_news_amur3(pars_amur_life, News_AmurLife)
-
-        print('check_news_amur stop')
-
-
-        # task1 = asyncio.create_task(start_checks_for_news_amur(pars_amurinfo, News_AmurInfo))
-        # task2 = asyncio.create_task(start_checks_for_news_amur(pars_asn24, News_ASN24))
-        # task3 = asyncio.create_task(start_checks_for_news_amur(pars_amur_life, News_AmurLife))
 
 async def send_news_amur(model):
     news = await orm.get_min_date(model)
@@ -176,26 +163,14 @@ async def send_news_amur3(model):
 
 async def sends_news_amur(wait_for):
     while True:
-        print('sends_news_amur start')
-
-
         await asyncio.sleep(wait_for)
-        print('sen')
+
         await send_news_amur(News_AmurLife)
         await send_news_amur2(News_AmurInfo)
         await send_news_amur3(News_ASN24)
 
-
         await asyncio.sleep(wait_for)
-        print('che')
 
         await start_checks_for_news_amur(pars_amurinfo, News_AmurInfo)
         await start_checks_for_news_amur2(pars_asn24, News_ASN24)
         await start_checks_for_news_amur3(pars_amur_life, News_AmurLife)
-
-
-        print('sends_news_amur stop')
-
-        # task2 = asyncio.create_task(send_news_amur(News_AmurLife))
-        # task3 = asyncio.create_task(send_news_amur(News_AmurInfo))
-        # task4 = asyncio.create_task(send_news_amur(News_ASN24))
