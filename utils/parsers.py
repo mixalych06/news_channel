@@ -1,4 +1,5 @@
 import locale
+from time import sleep
 
 # from zoneinfo import ZoneInfo
 import asyncio
@@ -116,21 +117,26 @@ async def check_add_news(news_dict, model):
     latest_news = await orm.get_max_date(model)
     if latest_news in news_dict:
         await orm.add_news(news_dict[:news_dict.index(latest_news)], latest_news, model)
+        return True
     else:
         await orm.add_news(news_dict, latest_news, model)
+        return True
 
 
 async def start_checks_for_news_amur(pars, model):
     news = pars()
     await check_add_news(news, model)
+    return True
 
 async def start_checks_for_news_amur2(pars, model):
     news = pars()
     await check_add_news(news, model)
+    return True
 
 async def start_checks_for_news_amur3(pars, model):
     news = pars()
     await check_add_news(news, model)
+    return True
 
 async def check_news_amur(wait_for):
     while True:
@@ -139,6 +145,7 @@ async def check_news_amur(wait_for):
         await start_checks_for_news_amur(pars_amurinfo, News_AmurInfo)
         await start_checks_for_news_amur2(pars_asn24, News_ASN24)
         await start_checks_for_news_amur3(pars_amur_life, News_AmurLife)
+        return True
 
 async def send_news_amur(model):
     news = await orm.get_min_date(model)
@@ -146,6 +153,7 @@ async def send_news_amur(model):
         await orm.update_completed(news.id, model)
         await bot.send_message(chat_id=ID_CHANEL,
                                text=f'{news.link}')
+    return True
 
 async def send_news_amur2(model):
     news = await orm.get_min_date(model)
@@ -153,6 +161,7 @@ async def send_news_amur2(model):
         await orm.update_completed(news.id, model)
         await bot.send_message(chat_id=ID_CHANEL,
                                text=f'{news.link}')
+    return True
 
 async def send_news_amur3(model):
     news = await orm.get_min_date(model)
@@ -160,17 +169,15 @@ async def send_news_amur3(model):
         await orm.update_completed(news.id, model)
         await bot.send_message(chat_id=ID_CHANEL,
                                text=f'{news.link}')
+    return True
 
 async def sends_news_amur(wait_for):
     while True:
-        await asyncio.sleep(wait_for)
-
         await send_news_amur(News_AmurLife)
         await send_news_amur2(News_AmurInfo)
         await send_news_amur3(News_ASN24)
-
         await asyncio.sleep(wait_for)
-
         await start_checks_for_news_amur(pars_amurinfo, News_AmurInfo)
         await start_checks_for_news_amur2(pars_asn24, News_ASN24)
         await start_checks_for_news_amur3(pars_amur_life, News_AmurLife)
+

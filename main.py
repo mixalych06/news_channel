@@ -9,10 +9,7 @@ from utils.parsers import sends_news_amur
 
 
 async def create_task():
-    #task1 = asyncio.create_task(check_news_amur(15.0))
-    task2 = asyncio.create_task(sends_news_amur(120))
-    #await sends_news_amur(15.0)
-
+    task1 = asyncio.create_task(sends_news_amur(120))
 
 
 async def main() -> None:
