@@ -174,7 +174,9 @@ async def send_news_amur3(model):
 async def sends_news_amur(wait_for):
     while True:
         await send_news_amur(News_AmurLife)
+        await asyncio.sleep(2)
         await send_news_amur2(News_AmurInfo)
+        await asyncio.sleep(2)
         await send_news_amur3(News_ASN24)
         await asyncio.sleep(wait_for)
         await start_checks_for_news_amur(pars_amurinfo, News_AmurInfo)
