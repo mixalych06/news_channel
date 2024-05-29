@@ -7,11 +7,13 @@ from data.orm import create_table
 from utils.parsers import check_news_amur
 from utils.parsers import sends_news_amur
 
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
+
 
 async def create_task():
-    loop = asyncio.get_event_loop()
-    loop.create_task(sends_news_amur(120))
-    # task1 = asyncio.create_task(sends_news_amur(120))
+    scheduler = AsyncIOScheduler()
+    scheduler.add_job(sends_news_amur, 'interval', seconds=180)
+    scheduler.start()
 
 
 async def main() -> None:
