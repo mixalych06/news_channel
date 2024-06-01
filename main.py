@@ -4,7 +4,7 @@ from create_bot import bot, dp
 
 from handlers import h_admin
 from data.orm import create_table
-from utils.parsers import check_news_amur
+from utils.parsers import all_start_checks_for_news_amur
 from utils.parsers import sends_news_amur
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
@@ -12,7 +12,9 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
 async def create_task():
     scheduler = AsyncIOScheduler()
-    scheduler.add_job(sends_news_amur, 'interval', seconds=180)
+    scheduler.add_job(sends_news_amur, 'interval', seconds=180, max_instances=1)
+    scheduler.add_job(all_start_checks_for_news_amur, 'interval', seconds=480, max_instances=1)
+
     scheduler.start()
 
 
